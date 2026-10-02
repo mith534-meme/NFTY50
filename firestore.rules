@@ -1,0 +1,76 @@
+rules_version = '2';
+
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: users
+// Document ID: {userId}
+// Fields:
+//   - id: string (required) - UID matching document ID and auth.uid
+//   - full_name: string (required, 1..100 chars) - User display name
+//   - email: string (required, valid email) - User email address
+//   - phone: string (optional, 0..20 chars) - Mobile number
+//   - role: string (required, 'USER' or 'ADMIN') - Access role (normal user can only set 'USER')
+//   - status: string (required, 'ACTIVE' or 'SUSPENDED') - Account status
+//   - subscription_status: string (required) - Subscription status
+//   - email_verified: bool (required) - Email verification status
+//   - created_at: string (required, ISO date string) - Creation timestamp
+//   - updated_at: string (required, ISO date string) - Last update timestamp
+//   - last_login_at: string (required, ISO date string) - Last login timestamp
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['id', 'full_name', 'email', 'role', 'status', 'email_verified']) &&
+        data.id is string &&
+        data.full_name is string && data.full_name.size() > 0 && data.full_name.size() <= 100 &&
+        data.email is string && isValidEmail(data.email) &&
+        data.role in ['USER', 'ADMIN'] &&
+        data.status in ['ACTIVE', 'SUSPENDED', 'TRIAL', 'EXPIRED'] &&
+        data.email_verified is bool;
+    }
+
+    // Collection Rules
+    match /users/{userId} {
+      // Owner can read their own profile; admin can read any profile
+      allow read: if isOwner(userId);
+
+      // Normal user can only create their own user document with role == 'USER'
+      allow create: if isAuthenticated() &&
+        isOwner(userId) &&
+        isValidUser(request.resource.data) &&
+        request.resource.data.role == 'USER';
+
+      // Owner can update profile without mutating role
+      allow update: if isAuthenticated() &&
+        isOwner(userId) &&
+        isValidUser(request.resource.data) &&
+        request.resource.data.role == resource.data.role;
+
+      // Deleting user documents disabled
+      allow delete: if false;
+    }
+
+    // Default deny all other paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

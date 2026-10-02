@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Calistoga", serif;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --color-brand-bg: #FAFAFA;
+  --color-brand-dark: #0F172A;
+  --color-brand-surface: #F1F5F9;
+  --color-brand-muted: #64748B;
+  --color-brand-primary: #0052FF;
+  --color-brand-secondary: #4D7CFF;
+  --color-brand-border: #E2E8F0;
+
+  --shadow-layered: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(0, 82, 255, 0.04);
+  --shadow-card-hover: 0 12px 30px -4px rgba(0, 82, 255, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+  --shadow-glow: 0 0 25px rgba(0, 82, 255, 0.25);
+}
+
+/* Base custom styles */
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    color: #0F172A;
+    background-color: #FAFAFA;
+  }
+}
+
+/* Custom Utilities */
+.font-display {
+  font-family: 'Calistoga', serif;
+}
+
+.font-sans {
+  font-family: 'Inter', sans-serif;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Signature Gradient */
+.bg-gradient-signature {
+  background: linear-gradient(135deg, #0052FF, #4D7CFF);
+}
+
+.text-gradient-signature {
+  background: linear-gradient(135deg, #0052FF, #4D7CFF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.border-gradient-signature {
+  border-image: linear-gradient(135deg, #0052FF, #4D7CFF) 1;
+}
+
+/* Dot Grid Background Texture */
+.bg-dot-grid {
+  background-image: radial-gradient(rgba(226, 232, 240, 0.6) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.bg-dot-grid-dark {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Radial Glow Effects */
+.bg-radial-glow {
+  background: radial-gradient(circle at 50% 30%, rgba(0, 82, 255, 0.15), transparent 70%);
+}
+
+.bg-radial-glow-dark {
+  background: radial-gradient(circle at 50% 20%, rgba(77, 124, 255, 0.2), transparent 70%);
+}
+
+/* Focus Rings */
+.focus-ring {
+  @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0052FF] focus-visible:ring-offset-2;
+}
+
+/* Custom Animation Keyframes */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+.animate-float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+.animate-rotate-slow {
+  animation: rotateSlow 35s linear infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+/* Reduced Motion respect */
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-slow,
+  .animate-rotate-slow,
+  .animate-pulse-glow {
+    animation: none !important;
+  }
+}
